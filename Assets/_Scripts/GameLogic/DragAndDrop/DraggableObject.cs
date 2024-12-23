@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace _Scripts.Infrastructure.Logic
+namespace _Scripts.GameLogic.DragAndDrop
 {
     public class DraggableObject : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler
     {
