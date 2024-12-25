@@ -1,5 +1,5 @@
 using _Scripts.GameLogic.DragAndDrop;
-using _Scripts.GameLogic.RectangleBehaviour;
+using _Scripts.GameLogic.Rectangle;
 using _Scripts.Infrastructure;
 using UnityEngine;
 

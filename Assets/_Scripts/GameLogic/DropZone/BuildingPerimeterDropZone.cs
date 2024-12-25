@@ -1,5 +1,4 @@
 using _Scripts.GameLogic.DragAndDrop;
-using _Scripts.GameLogic.RectangleBehaviour;
 using UnityEngine;
 
 namespace _Scripts.GameLogic.DropZone

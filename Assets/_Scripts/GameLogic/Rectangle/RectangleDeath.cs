@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace _Scripts.GameLogic.RectangleBehaviour
+namespace _Scripts.GameLogic.Rectangle
 {
     public class RectangleDeath : MonoBehaviour
     {
