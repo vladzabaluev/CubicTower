@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using _Scripts.GameLogic.DragAndDrop;
+using _Scripts.GameLogic.DropZone;
 using _Scripts.Infrastructure.Factory;
 using _Scripts.Infrastructure.Services;
 using UnityEngine;
@@ -17,10 +18,14 @@ namespace _Scripts.GameLogic
 
         private GameFactory _gameFactory;
 
+        
+       [SerializeField] private DropZoneManager _dropZoneManager;
         private void Awake()
         {
             _gameFactory = (GameFactory) AllServices.Container.Single<IGameFactory>();
-
+            
+            _dropZoneManager.Construct(_canvas);
+            
             foreach (var button in _rectangleButtons)
             {
                 button.OnClick += CreateRectangle;
@@ -35,8 +40,15 @@ namespace _Scripts.GameLogic
             var draggableObject = rectangle.GetComponent<DraggableObject>();
             
             InitializeRectangle(eventData, draggableObject, rectButtonTransform);
-
             SubscribeOnEvents(rectangleButton, draggableObject);
+
+            InitDroppable(rectangle);
+        }
+
+        private void InitDroppable(GameObject rectangle)
+        {
+            var droppedObject = rectangle.GetComponent<DroppableObject>();
+            droppedObject.Construct(_dropZoneManager);
         }
 
         private void InitializeRectangle(PointerEventData eventData, DraggableObject draggableObject,

@@ -3,16 +3,17 @@ using UnityEngine;
 
 namespace _Scripts.UI
 {
-    public  class OpacityHandler : IOpacityHandler
+    public class OpacityHandler
     {
-        public void MakeTransparency(CanvasGroup canvasGroup)
+        public static void MakeTransparency(CanvasGroup canvasGroup)
         {
             canvasGroup.alpha = 0.6f;
         }
 
-        public  void MakeOpaque(CanvasGroup canvasGroup)
+        public static void MakeOpaque(CanvasGroup canvasGroup)
         {
             canvasGroup.alpha = 1f;
+            BlockRaycatHandler.LockRaycast(canvasGroup);
         }
     }
 }

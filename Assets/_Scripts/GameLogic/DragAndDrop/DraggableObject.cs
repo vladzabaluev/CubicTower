@@ -14,19 +14,21 @@ namespace _Scripts.GameLogic.DragAndDrop
         [SerializeField] private RectTransform _rectTransform;
         [SerializeField] private CanvasGroup _canvasGroup;
 
-        private IOpacityHandler _opacityHandler;
         private Vector2 _offset;
+
+        public event Action<Vector2> OnDrop;
+        // public  Action OnDrop => _onDrop;
 
         public void Construct(Canvas canvas)
         {
             _canvas = canvas;
-            _opacityHandler = new OpacityHandler();
         }
 
         public void OnBeginDrag(PointerEventData eventData)
         {
             CalculatePointerOffset(eventData);
-            _opacityHandler.MakeTransparency(_canvasGroup);
+            OpacityHandler.MakeTransparency(_canvasGroup);
+            BlockRaycatHandler.UnlockRaycast(_canvasGroup);
         }
 
         public void OnDrag(PointerEventData eventData)
@@ -36,9 +38,10 @@ namespace _Scripts.GameLogic.DragAndDrop
 
         public void OnEndDrag(PointerEventData eventData)
         {
-            _opacityHandler.MakeOpaque(_canvasGroup);
+            OpacityHandler.MakeOpaque(_canvasGroup);
+            BlockRaycatHandler.LockRaycast(_canvasGroup);
+            OnDrop?.Invoke(eventData.position);
         }
-        
 
         private void CalculatePointerOffset(PointerEventData eventData)
         {
