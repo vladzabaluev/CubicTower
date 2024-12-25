@@ -1,38 +1,15 @@
-using System;
 using _Scripts.GameLogic.DragAndDrop;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace _Scripts.GameLogic.DropZone
 {
-    public class DropZone : MonoBehaviour, IDropZone, IPointerEnterHandler, IPointerExitHandler
+    [RequireComponent(typeof(DropZoneCollider))]
+    public class DropZone : MonoBehaviour, IDropZone
     {
-        private RectTransform _rectTransform;
-        public RectTransform RectTransform => _rectTransform;
-        private bool _isTargetLock;
-        public bool IsTargetLocked => _isTargetLock;
-
-        private void Awake()
+        public virtual void OnDropRecieved(GameObject droppableObject)
         {
-            _rectTransform = GetComponent<RectTransform>();
-        }
-
-        public void OnDropRecieved()
-        {
-            Debug.Log(this.name);
-        }
-
-        public void OnPointerEnter(PointerEventData eventData)
-        {
-            Debug.Log("OnPointerEnter");
-            _isTargetLock = true;
-        }
-
-        public void OnPointerExit(PointerEventData eventData)
-        {
-            Debug.Log("OnPointerExit");
-
-            _isTargetLock = false;
+            Debug.Log(transform.name + " get " + droppableObject.name);
         }
     }
 }

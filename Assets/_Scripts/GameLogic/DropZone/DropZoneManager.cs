@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using _Scripts.GameLogic.DragAndDrop;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -9,34 +10,23 @@ namespace _Scripts.GameLogic.DropZone
     public class DropZoneManager : MonoBehaviour
     {
         private Canvas _canvas;
-        [SerializeField] List<DropZone> _dropZones;
+
+        [SerializeField] private List<DropZoneCollider> _dropZoneColliders;
 
         public void Construct(Canvas canvas)
         {
             _canvas = canvas;
         }
 
-      
-
-        public void CheckOverlap(Vector2 position)
+        public void OnObjectDropped(GameObject droppableObject)
         {
-            foreach (var dropZone in _dropZones)
+            foreach (var dropZoneCollider in _dropZoneColliders)
             {
-                // Debug.Log(dropZone.RectTransform.);
-                if (dropZone.IsTargetLocked)
+                if (dropZoneCollider.IsActiveZone)
                 {
-                    dropZone.OnDropRecieved();
+                    dropZoneCollider.GetComponent<IDropZone>().OnDropRecieved(droppableObject);
                 }
             }
-        }
-
-        bool IsCenterOver(RectTransform rect1, RectTransform rect2)
-        {
-            // Получаем экранные координаты центра первого RectTransform
-            Vector2 screenCenter = RectTransformUtility.WorldToScreenPoint(Camera.main, rect1.position);
-
-            // Проверяем, находится ли эта точка в пределах второго RectTransform
-            return RectTransformUtility.RectangleContainsScreenPoint(rect2, rect1.rect.position, Camera.main);
         }
     }
 }

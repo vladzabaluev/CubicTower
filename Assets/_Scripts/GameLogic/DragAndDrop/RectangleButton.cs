@@ -13,7 +13,6 @@ namespace _Scripts.GameLogic.DragAndDrop
         public void OnPointerDown(PointerEventData eventData)
         {
             OnClick?.Invoke(eventData, this);
-            Debug.Log("Pointer down");
         }
 
         public void OnDrag(PointerEventData eventData)
@@ -24,7 +23,6 @@ namespace _Scripts.GameLogic.DragAndDrop
         public void OnEndDrag(PointerEventData eventData)
         {
             OnRelease?.Invoke(eventData);
-            Debug.Log("End drag");
             ClearEvents();
         }
 

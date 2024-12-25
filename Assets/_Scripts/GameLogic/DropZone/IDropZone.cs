@@ -4,8 +4,8 @@ using UnityEngine.EventSystems;
 
 namespace _Scripts.GameLogic.DropZone
 {
-    public interface IDropZone : IPointerEnterHandler
+    public interface IDropZone
     {
-        void OnDropRecieved();
+        void OnDropRecieved(GameObject droppableObject);
     }
 }

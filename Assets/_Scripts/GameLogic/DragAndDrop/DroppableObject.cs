@@ -23,7 +23,8 @@ namespace _Scripts.GameLogic.DragAndDrop
 
         private void CheckDropZoneUnderObject(Vector2 pointerPosition)
         {
-            _dropZoneManager.CheckOverlap(pointerPosition);
+            Debug.Log("Object dropped");
+            _dropZoneManager.OnObjectDropped(this.gameObject);
         }
     }
 }
