@@ -15,13 +15,7 @@ namespace _Scripts.GameLogic.DropZone
             base.OnDropRecieved(droppableObject);
             var rectangleAnimator = droppableObject.GetComponent<RectangleAnimator>();
 
-            rectangleAnimator?.AnimateMoveTo(_targetHolePosition.position, 2, () => DeleteRectangle(droppableObject));
-        }
-
-        private void DeleteRectangle(GameObject droppableObject)
-        {
-            var rectangleDeath = droppableObject.GetComponent<RectangleDeath>();
-            rectangleDeath?.DeleteRectangle();
+            rectangleAnimator?.AnimateMoveTo(_targetHolePosition.position, 2, () => DestroyRectangle(droppableObject));
         }
     }
 }

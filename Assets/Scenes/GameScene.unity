@@ -1023,7 +1023,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 018439f27d584868b18197d276fcba64, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _targetHolePosition: {fileID: 0}
+  _targetHolePosition: {fileID: 1409027946}
 --- !u!1 &1254703625
 GameObject:
   m_ObjectHideFlags: 0
@@ -1227,7 +1227,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: -136.6}
+  m_AnchoredPosition: {x: 0, y: -154.2}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!1 &1435761140

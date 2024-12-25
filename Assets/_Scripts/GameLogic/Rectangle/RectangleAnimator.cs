@@ -21,5 +21,22 @@ namespace _Scripts.GameLogic.Rectangle
 
             DOTween.Sequence().Append(rotationTween).Join(moveTween).OnComplete(() => onComplete?.Invoke());
         }
+
+        public void Disappear(float duration, Action onComplete = null)
+        {
+            BlockRaycatHandler.UnlockRaycast(this.GetComponent<CanvasGroup>());
+
+            CanvasGroup canvasGroup = GetComponent<CanvasGroup>();
+
+            Sequence fadeSequence = DOTween.Sequence();
+
+            fadeSequence.Append(canvasGroup?.DOFade(0, duration).SetEase(Ease.InOutQuad));
+            fadeSequence.Join(transform?.DOScale(Vector3.zero, duration).SetEase(Ease.InOutQuad));
+
+            fadeSequence.Join(transform?.DORotate(new Vector3(0, 0, -360), duration, RotateMode.FastBeyond360)
+                .SetEase(Ease.InOutQuad));
+
+            fadeSequence.OnComplete(() => onComplete?.Invoke());
+        }
     }
 }

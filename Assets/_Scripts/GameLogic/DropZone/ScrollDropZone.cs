@@ -11,8 +11,7 @@ namespace _Scripts.GameLogic.DropZone
         {
             base.OnDropRecieved(droppableObject);
 
-            var rectangleDeath = droppableObject.GetComponent<RectangleDeath>();
-            rectangleDeath?.DeleteRectangle();
+            DestroyRectangle(droppableObject);
         }
     }
 }
