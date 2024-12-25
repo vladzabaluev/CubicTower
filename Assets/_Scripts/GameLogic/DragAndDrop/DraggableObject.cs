@@ -1,8 +1,12 @@
+using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace _Scripts.GameLogic.DragAndDrop
 {
+    using UnityEngine;
+    using UnityEngine.EventSystems;
+
     public class DraggableObject : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler
     {
         [SerializeField] private Canvas _canvas;
@@ -10,53 +14,72 @@ namespace _Scripts.GameLogic.DragAndDrop
         [SerializeField] private CanvasGroup _canvasGroup;
 
         private Vector2 _offset;
+        private bool _isManual;
 
-        private void Awake()
+        public void Construct(Canvas canvas)
         {
-            if (_rectTransform == null)
-            {
-                _rectTransform = GetComponent<RectTransform>();
-            }
-
-            if (_canvas == null)
-            {
-                _canvas = GetComponentInParent<Canvas>();
-            }
+            _canvas = canvas;
         }
 
         public void OnBeginDrag(PointerEventData eventData)
         {
-            Vector3 worldMousePosition = eventData.position;
-
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(_canvas.transform as RectTransform, worldMousePosition, eventData.pressEventCamera,
-                out Vector2 localMousePosition);
-
-            _offset = _rectTransform.position - worldMousePosition;
-
-            if (_canvasGroup != null)
-            {
-                _canvasGroup.alpha = 0.6f;
-                _canvasGroup.blocksRaycasts = false;
-            }
+            CalculatePointerOffset(eventData);
+            MakeTransparency();
         }
 
         public void OnDrag(PointerEventData eventData)
         {
-            Vector3 worldMousePosition = eventData.position;
-
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(_canvas.transform as RectTransform, worldMousePosition, eventData.pressEventCamera,
-                out Vector2 localPoint);
-
-            _rectTransform.position = worldMousePosition + (Vector3) (_offset);
+            FollowPointer(eventData);
         }
 
         public void OnEndDrag(PointerEventData eventData)
         {
-            if (_canvasGroup != null)
-            {
-                _canvasGroup.alpha = 1f;
-                _canvasGroup.blocksRaycasts = true;
-            }
+            MakeOpaque();
+        }
+
+        private void Awake()
+        {
+            if (_rectTransform == null)
+                _rectTransform = GetComponent<RectTransform>();
+
+            if (_canvas == null)
+                _canvas = GetComponentInParent<Canvas>();
+        }
+
+        private void CalculatePointerOffset(PointerEventData eventData)
+        {
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(_rectTransform.parent as RectTransform,
+                eventData.position, _canvas.worldCamera, out Vector2 localMousePosition);
+
+            _offset = _rectTransform.anchoredPosition - localMousePosition;
+        }
+
+        private void FollowPointer(PointerEventData eventData)
+        {
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(_rectTransform.parent as RectTransform,
+                eventData.position, _canvas.worldCamera, out Vector2 localPointerPosition);
+
+            _rectTransform.anchoredPosition = localPointerPosition + _offset;
+        }
+
+        private void MakeTransparency()
+        {
+            _canvasGroup.alpha = 0.6f;
+        }
+
+        private void MakeOpaque()
+        {
+            _canvasGroup.alpha = 1f;
+        }
+
+        private void DisableManualControl()
+        {
+            _isManual = false;
+        }
+
+        public void EnableManualControl()
+        {
+            _isManual = false;
         }
     }
 }

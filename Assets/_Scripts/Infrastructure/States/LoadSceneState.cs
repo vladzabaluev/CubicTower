@@ -33,7 +33,7 @@ namespace _Scripts.Infrastructure.States
 
         private void OnLoadComplete()
         {
-            _gameFactory.CreateRectangle(new Vector3(0, 0, 0), null);
+            // _gameFactory.CreateRectangle(new Vector3(0, 0, 0), null);
             Debug.Log("Создание бяк");
             _gameStateMachine.Enter<GameLoopState>();
         }
