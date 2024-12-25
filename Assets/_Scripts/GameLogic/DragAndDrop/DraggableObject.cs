@@ -1,4 +1,5 @@
 using System;
+using _Scripts.UI;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -13,18 +14,19 @@ namespace _Scripts.GameLogic.DragAndDrop
         [SerializeField] private RectTransform _rectTransform;
         [SerializeField] private CanvasGroup _canvasGroup;
 
+        private IOpacityHandler _opacityHandler;
         private Vector2 _offset;
-        private bool _isManual;
 
         public void Construct(Canvas canvas)
         {
             _canvas = canvas;
+            _opacityHandler = new OpacityHandler();
         }
 
         public void OnBeginDrag(PointerEventData eventData)
         {
             CalculatePointerOffset(eventData);
-            MakeTransparency();
+            _opacityHandler.MakeTransparency(_canvasGroup);
         }
 
         public void OnDrag(PointerEventData eventData)
@@ -34,52 +36,30 @@ namespace _Scripts.GameLogic.DragAndDrop
 
         public void OnEndDrag(PointerEventData eventData)
         {
-            MakeOpaque();
+            _opacityHandler.MakeOpaque(_canvasGroup);
         }
-
-        private void Awake()
-        {
-            if (_rectTransform == null)
-                _rectTransform = GetComponent<RectTransform>();
-
-            if (_canvas == null)
-                _canvas = GetComponentInParent<Canvas>();
-        }
+        
 
         private void CalculatePointerOffset(PointerEventData eventData)
         {
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(_rectTransform.parent as RectTransform,
-                eventData.position, _canvas.worldCamera, out Vector2 localMousePosition);
+            var localPointerPosition = GetLocalPointerPosition(eventData);
 
-            _offset = _rectTransform.anchoredPosition - localMousePosition;
+            _offset = _rectTransform.anchoredPosition - localPointerPosition;
         }
 
         private void FollowPointer(PointerEventData eventData)
         {
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(_rectTransform.parent as RectTransform,
-                eventData.position, _canvas.worldCamera, out Vector2 localPointerPosition);
+            var localPointerPosition = GetLocalPointerPosition(eventData);
 
             _rectTransform.anchoredPosition = localPointerPosition + _offset;
         }
 
-        private void MakeTransparency()
+        private Vector2 GetLocalPointerPosition(PointerEventData eventData)
         {
-            _canvasGroup.alpha = 0.6f;
-        }
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(_rectTransform.parent as RectTransform,
+                eventData.position, _canvas.worldCamera, out Vector2 localPointerPosition);
 
-        private void MakeOpaque()
-        {
-            _canvasGroup.alpha = 1f;
-        }
-
-        private void DisableManualControl()
-        {
-            _isManual = false;
-        }
-
-        public void EnableManualControl()
-        {
-            _isManual = false;
+            return localPointerPosition;
         }
     }
 }

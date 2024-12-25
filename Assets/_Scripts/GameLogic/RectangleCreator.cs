@@ -23,39 +23,34 @@ namespace _Scripts.GameLogic
 
             foreach (var button in _rectangleButtons)
             {
-                //Получить где нажата кнопка и нажата ли
-                //Создать чела, передать ему все для расчетов 
-                //начать двигать объект
-                //в нём движение можно прекратить, когда отпустится курсор
-                button.OnClick += CreateNewRectangle;
+                button.OnClick += CreateRectangle;
             }
         }
 
-        private void CreateNewRectangle(PointerEventData eventData, RectangleButton rectangleButton)
+        private void CreateRectangle(PointerEventData eventData, RectangleButton rectangleButton)
         {
             RectTransform rectButtonTransform = rectangleButton.GetComponent<RectTransform>();
 
             var rectangle = _gameFactory.CreateRectangle(GetButtonPosition(rectButtonTransform), _rectangleContainer);
             var draggableObject = rectangle.GetComponent<DraggableObject>();
             
-            draggableObject.Construct(_canvas);
-            draggableObject.GetComponent<RectTransform>().sizeDelta = rectButtonTransform.sizeDelta;
+            InitializeRectangle(eventData, draggableObject, rectButtonTransform);
 
-            draggableObject.OnBeginDrag(eventData);
-            rectangleButton.OnButtonDrag += draggableObject.OnDrag;
-            rectangleButton.OnRelease += draggableObject.OnEndDrag;
+            SubscribeOnEvents(rectangleButton, draggableObject);
         }
 
-        private GameObject CreateRectangle(Vector3 buttonPosition)
+        private void InitializeRectangle(PointerEventData eventData, DraggableObject draggableObject,
+            RectTransform rectButtonTransform)
         {
-            GameObject rectangle = _gameFactory.CreateRectangle(buttonPosition, _rectangleContainer);
+            draggableObject.Construct(_canvas);
+            draggableObject.GetComponent<RectTransform>().sizeDelta = rectButtonTransform.sizeDelta;
+            draggableObject.OnBeginDrag(eventData);
+        }
 
-            if (rectangle.TryGetComponent(out DraggableObject draggableObject))
-            {
-                draggableObject.Construct(_canvas);
-            }
-
-            return rectangle;
+        private static void SubscribeOnEvents(RectangleButton rectangleButton, DraggableObject draggableObject)
+        {
+            rectangleButton.OnButtonDrag += draggableObject.OnDrag;
+            rectangleButton.OnRelease += draggableObject.OnEndDrag;
         }
 
         private Vector3 GetButtonPosition(RectTransform buttonRectTransform)
