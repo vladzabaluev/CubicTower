@@ -8,7 +8,21 @@ namespace _Scripts.GameLogic.Rectangle
 {
     public class RectangleAnimator : MonoBehaviour
     {
-        public void AnimateMoveTo(Vector3 targetPosition, float totalDuration, Action onComplete = null)
+        [SerializeField] private float animationSpeed = 1f; // Скорость движения.
+
+        public void MoveToTargetHeight(float targetHeight, Action onComplete = null)
+        {
+            transform.DOMoveY(targetHeight, animationSpeed).SetEase(Ease.InOutSine) // Линейное ускорение.
+                .OnComplete(() => { onComplete?.Invoke(); });
+        }
+
+        public void MoveToPosition(Vector3 targetPosition, Action onComplete = null)
+        {
+            transform.DOMove(targetPosition, animationSpeed).SetEase(Ease.InOutSine)
+                .OnComplete(() => { onComplete?.Invoke(); });
+        }
+
+        public void StrangeMoveTo(Vector3 targetPosition, float totalDuration, Action onComplete = null)
         {
             BlockRaycatHandler.UnlockRaycast(this.GetComponent<CanvasGroup>());
 

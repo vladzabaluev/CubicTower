@@ -1,5 +1,6 @@
 using System;
 using _Scripts.GameLogic.DropZone;
+using _Scripts.GameLogic.Rectangle;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -14,17 +15,22 @@ namespace _Scripts.GameLogic.DragAndDrop
         public void Construct(DropZoneManager dropZoneManager)
         {
             _dropZoneManager = dropZoneManager;
+            _draggableObject.OnDrop += CheckDropZoneUnderObject;
         }
 
-        private void Start()
+        private void OnDestroy()
         {
-            _draggableObject.OnDrop += CheckDropZoneUnderObject;
+            _draggableObject.OnDrop -= CheckDropZoneUnderObject;
         }
 
         private void CheckDropZoneUnderObject(Vector2 pointerPosition)
         {
             Debug.Log("Object dropped");
-            _dropZoneManager.OnObjectDropped(this.gameObject);
+
+            if (!_dropZoneManager.IsObjectInDropZone(this.gameObject))
+            {
+                GetComponent<RectangleDeath>()?.DeleteRectangle();
+            }
         }
     }
 }

@@ -18,15 +18,18 @@ namespace _Scripts.GameLogic.DropZone
             _canvas = canvas;
         }
 
-        public void OnObjectDropped(GameObject droppableObject)
+        public bool IsObjectInDropZone(GameObject droppableObject)
         {
             foreach (var dropZoneCollider in _dropZoneColliders)
             {
                 if (dropZoneCollider.IsActiveZone)
                 {
                     dropZoneCollider.GetComponent<IDropZone>().OnDropRecieved(droppableObject);
+                    return true;
                 }
             }
+
+            return false;
         }
     }
 }

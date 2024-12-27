@@ -59,7 +59,7 @@ namespace _Scripts.GameLogic
             draggableObject.OnBeginDrag(eventData);
         }
 
-        private static void SubscribeOnEvents(RectangleButton rectangleButton, DraggableObject draggableObject)
+        private void SubscribeOnEvents(RectangleButton rectangleButton, DraggableObject draggableObject)
         {
             rectangleButton.OnButtonDrag += draggableObject.OnDrag;
             rectangleButton.OnRelease += draggableObject.OnEndDrag;
