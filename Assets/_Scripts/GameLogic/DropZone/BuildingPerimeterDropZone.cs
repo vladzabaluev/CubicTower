@@ -10,7 +10,7 @@ namespace _Scripts.GameLogic.DropZone
         {
             base.OnDropRecieved(droppableObject);
             RectangleAnimator rectangleAnimator = droppableObject.GetComponent<RectangleAnimator>();
-            rectangleAnimator.Disappear(2, () => Destroy(droppableObject));
+            rectangleAnimator.Disappear(2, () => DestroyRectangle(droppableObject));
         }
     }
 }

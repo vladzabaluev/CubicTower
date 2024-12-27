@@ -5,11 +5,11 @@ namespace _Scripts.GameLogic.Rectangle
 {
     public class RectangleDeath : MonoBehaviour
     {
-        public event Action OnRectangleDeath;
+        public event Action<GameObject> OnRectangleDeath;
 
         public void DeleteRectangle()
         {
-            OnRectangleDeath?.Invoke();
+            OnRectangleDeath?.Invoke(this.gameObject);
             Destroy(gameObject);
         }
     }

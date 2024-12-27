@@ -37,6 +37,36 @@ namespace _Scripts.GameLogic.DropZone
             AddToTower(droppableObject);
             AdjustZoneSize();
             MoveZoneAboveLastBlock();
+            var rectangleDeath = droppableObject.GetComponent<RectangleDeath>();
+            rectangleDeath.OnRectangleDeath += LowerTowerDown;
+        }
+
+        private void LowerTowerDown(GameObject deletedRectangle)
+        {
+            int deletedIndex = _towerBlocks.IndexOf(deletedRectangle);
+            float deletedHeight = deletedRectangle.GetComponent<RectTransform>().rect.height;
+
+            if (deletedIndex == _towerBlocks.Count - 1)
+            {
+                _towerHeadRectTransform = _towerBlocks[_towerBlocks.Count - 1].GetComponent<RectTransform>();
+                AdjustZoneSize();
+            }
+
+            for (int i = deletedIndex + 1; i < _towerBlocks.Count; i++)
+            {
+                GameObject currentBlock = _towerBlocks[i];
+                Vector3 newPosition = currentBlock.transform.position;
+                newPosition.y -= deletedHeight;
+
+                RectangleAnimator animator = currentBlock.GetComponent<RectangleAnimator>();
+                animator.MoveToPosition(newPosition);
+            }
+
+//можно последнему передать ещё и перерисовку зоны
+            _towerBlocks.RemoveAt(deletedIndex);
+
+            MoveZoneAboveLastBlock();
+            Destroy(deletedRectangle);
         }
 
         private void AddToTower(GameObject droppableObject)
@@ -45,7 +75,6 @@ namespace _Scripts.GameLogic.DropZone
             _towerHeadRectTransform = droppableObject.GetComponent<RectTransform>();
         }
 
-        // Корректируем размер зоны.
         private void AdjustZoneSize()
         {
             float blockWidth = _towerHeadRectTransform.rect.width;
@@ -63,10 +92,8 @@ namespace _Scripts.GameLogic.DropZone
 
         private void MoveZoneAboveLastBlock()
         {
-            RectTransform lastBlockRect = _towerBlocks[_towerBlocks.Count - 1].GetComponent<RectTransform>();
-
-            Vector3 lastBlockPosition = lastBlockRect.position;
-            float lastBlockHeight = lastBlockRect.rect.height;
+            Vector3 lastBlockPosition = _towerHeadRectTransform.position;
+            float lastBlockHeight = _towerHeadRectTransform.rect.height;
 
             Vector3 newPosition = new Vector3(lastBlockPosition.x, lastBlockPosition.y + lastBlockHeight,
                 lastBlockPosition.z);
@@ -81,17 +108,16 @@ namespace _Scripts.GameLogic.DropZone
 
             Vector3 topPosition = _towerHeadRectTransform.position;
             float topWidth = _towerHeadRectTransform.rect.width;
-            
+
             float newBlockWidth = newBlockRect.rect.width;
             float newBlockHeight = newBlockRect.rect.height;
-            
+
             float randomX = Random.Range(topPosition.x - newBlockWidth / 2, topPosition.x + newBlockWidth / 2);
 
             float newBlockHeightOffset = newBlockHeight / 2;
 
-          
-            return new Vector3(randomX, topPosition.y + _towerHeadRectTransform.rect.height / 2 + newBlockHeightOffset, topPosition.z);
+            return new Vector3(randomX, topPosition.y + _towerHeadRectTransform.rect.height / 2 + newBlockHeightOffset,
+                topPosition.z);
         }
-        
     }
 }
