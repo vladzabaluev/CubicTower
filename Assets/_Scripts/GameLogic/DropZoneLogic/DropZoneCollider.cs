@@ -1,9 +1,7 @@
-using System;
-using _Scripts.GameLogic.DragAndDrop;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace _Scripts.GameLogic.DropZone
+namespace _Scripts.GameLogic.DropZoneLogic
 {
     public class DropZoneCollider : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {

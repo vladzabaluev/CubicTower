@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using _Scripts.GameLogic.DragAndDrop;
-using _Scripts.GameLogic.DropZone;
+using _Scripts.GameLogic.DropZoneLogic;
 using _Scripts.Infrastructure.Factory;
 using _Scripts.Infrastructure.Services;
 using UnityEngine;
@@ -28,7 +28,7 @@ namespace _Scripts.GameLogic
             
             foreach (var button in _rectangleButtons)
             {
-                button.OnClick += CreateRectangle;
+                button.OnPointerDown += CreateRectangle;
             }
         }
 

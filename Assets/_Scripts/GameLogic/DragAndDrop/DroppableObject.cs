@@ -1,5 +1,5 @@
 using System;
-using _Scripts.GameLogic.DropZone;
+using _Scripts.GameLogic.DropZoneLogic;
 using _Scripts.GameLogic.Rectangle;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -10,7 +10,11 @@ namespace _Scripts.GameLogic.DragAndDrop
     public class DroppableObject : MonoBehaviour
     {
         [SerializeField] private DraggableObject _draggableObject;
+
         private DropZoneManager _dropZoneManager;
+
+        private DropZone _currentDropZone;
+        public DropZone CurrentDropZone => _currentDropZone;
 
         public void Construct(DropZoneManager dropZoneManager)
         {
@@ -25,12 +29,31 @@ namespace _Scripts.GameLogic.DragAndDrop
 
         private void CheckDropZoneUnderObject(Vector2 pointerPosition)
         {
-            Debug.Log("Object dropped");
-
-            if (!_dropZoneManager.IsObjectInDropZone(this.gameObject))
+            if (_currentDropZone)
             {
-                GetComponent<RectangleDeath>()?.DeleteRectangle();
+                var previousDropZone = _currentDropZone;
+                _currentDropZone = _dropZoneManager.CanAnyAcceptObject(this);
+
+                if (!_currentDropZone)
+                {
+                    _currentDropZone = previousDropZone;
+                    GetComponent<RectTransform>().position = _draggableObject.PositionBeforeDrag;
+                }
+                else
+                {
+                    previousDropZone.OnDropLeft(this.gameObject);
+                }
             }
+            else
+            {
+                _currentDropZone = _dropZoneManager.CanAnyAcceptObject(this);
+
+                if (!_currentDropZone)
+                    GetComponent<RectangleDeath>()?.DeleteRectangle();
+            }
+
+            // _currentDropZone = _dropZoneManager.CanAnyAcceptObject(this.gameObject);
+            Debug.Log(_currentDropZone);
         }
     }
 }

@@ -2,7 +2,7 @@ using _Scripts.GameLogic.DragAndDrop;
 using _Scripts.GameLogic.Rectangle;
 using UnityEngine;
 
-namespace _Scripts.GameLogic.DropZone
+namespace _Scripts.GameLogic.DropZoneLogic
 {
     public class BuildingPerimeterDropZone : DropZone
     {
@@ -11,6 +11,17 @@ namespace _Scripts.GameLogic.DropZone
             base.OnDropRecieved(droppableObject);
             RectangleAnimator rectangleAnimator = droppableObject.GetComponent<RectangleAnimator>();
             rectangleAnimator.Disappear(2, () => DestroyRectangle(droppableObject));
+        }
+
+        public override bool CanAcceptObject(DroppableObject droppableObject)
+        {
+            if (_collider.IsActiveZone)
+            {
+                if (droppableObject.CurrentDropZone == null)
+                    return true;
+            }
+
+            return false;
         }
     }
 }

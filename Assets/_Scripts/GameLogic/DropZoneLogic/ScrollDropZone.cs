@@ -1,9 +1,6 @@
-using _Scripts.GameLogic.DragAndDrop;
-using _Scripts.GameLogic.Rectangle;
-using _Scripts.Infrastructure;
 using UnityEngine;
 
-namespace _Scripts.GameLogic.DropZone
+namespace _Scripts.GameLogic.DropZoneLogic
 {
     public class ScrollDropZone : DropZone
     {

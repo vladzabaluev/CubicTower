@@ -15,7 +15,7 @@ namespace _Scripts.GameLogic.DragAndDrop
         [SerializeField] private CanvasGroup _canvasGroup;
 
         private Vector2 _offset;
-
+        public Vector3 PositionBeforeDrag { get; private set; }
         public event Action<Vector2> OnDrop;
         // public  Action OnDrop => _onDrop;
 
@@ -26,6 +26,7 @@ namespace _Scripts.GameLogic.DragAndDrop
 
         public void OnBeginDrag(PointerEventData eventData)
         {
+            PositionBeforeDrag = _rectTransform.position;
             CalculatePointerOffset(eventData);
             OpacityHandler.MakeTransparency(_canvasGroup);
             BlockRaycatHandler.UnlockRaycast(_canvasGroup);

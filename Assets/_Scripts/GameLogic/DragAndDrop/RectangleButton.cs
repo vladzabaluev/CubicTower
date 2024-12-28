@@ -6,18 +6,13 @@ namespace _Scripts.GameLogic.DragAndDrop
 {
     public class RectangleButton : MonoBehaviour, IEndDragHandler, IDragHandler, IBeginDragHandler
     {
-        public event Action<PointerEventData, RectangleButton> OnClick;
+        public event Action<PointerEventData, RectangleButton> OnPointerDown;
         public event Action<PointerEventData> OnButtonDrag;
         public event Action<PointerEventData> OnRelease;
 
-        // public void OnPointerDown(PointerEventData eventData)
-        // {
-        //     OnClick?.Invoke(eventData, this);
-        // }
-
         public void OnBeginDrag(PointerEventData eventData)
         {
-            OnClick?.Invoke(eventData, this);
+            OnPointerDown?.Invoke(eventData, this);
         }
 
         public void OnDrag(PointerEventData eventData)
@@ -28,7 +23,7 @@ namespace _Scripts.GameLogic.DragAndDrop
         public void OnEndDrag(PointerEventData eventData)
         {
             OnRelease?.Invoke(eventData);
-            Debug.Log("End drag");
+
             ClearEvents();
         }
 
