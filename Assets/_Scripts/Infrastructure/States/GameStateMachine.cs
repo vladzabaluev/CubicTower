@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using _Scripts.GameLogic;
 using _Scripts.Infrastructure.Factory;
 using _Scripts.Infrastructure.Services;
+using _Scripts.Infrastructure.Services.PersistantProgress;
+using _Scripts.Infrastructure.Services.SaveLoad;
 using CodeBase.Infrastructure;
 
 namespace _Scripts.Infrastructure.States
@@ -20,12 +22,15 @@ namespace _Scripts.Infrastructure.States
             _states = new Dictionary<Type, IExitableState>
             {
                 [typeof(BootstrapState)] = new BootstrapState(this, sceneLoader, _allServices),
-                [typeof(LoadSceneState)] = new LoadSceneState(this, sceneLoader, loadingCurtain, (IGameFactory)_allServices.Single<IGameFactory>()),
-                [typeof(GameLoopState)] = new GameLoopState(this),
-            };
+                [typeof(LoadProgressState)] =
+                    new LoadProgressState(this,
+                        (PersistantProgressService) _allServices.Single<IPersistantProgressService>(),
+                        (SaveLoadService) _allServices.Single<ISaveLoadService>(), sceneLoader, _allServices),
+                [typeof(LoadLevelState)] = new LoadLevelState(this, sceneLoader, loadingCurtain,
+                    (IGameFactory) _allServices.Single<IGameFactory>(),
+                    (PersistantProgressService) _allServices.Single<IPersistantProgressService>()),
+                [typeof(GameLoopState)] = new GameLoopState(this), };
         }
-
- 
 
         public void Enter<TState>() where TState : class, IState
         {

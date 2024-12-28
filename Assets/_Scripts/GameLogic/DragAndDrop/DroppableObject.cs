@@ -22,6 +22,11 @@ namespace _Scripts.GameLogic.DragAndDrop
             _draggableObject.OnDrop += CheckDropZoneUnderObject;
         }
 
+        public void Accept(DropZone dropZone)
+        {
+            _currentDropZone = dropZone;
+        }
+
         private void OnDestroy()
         {
             _draggableObject.OnDrop -= CheckDropZoneUnderObject;

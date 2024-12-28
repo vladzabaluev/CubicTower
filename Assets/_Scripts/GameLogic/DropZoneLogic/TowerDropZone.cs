@@ -1,11 +1,18 @@
 using System.Collections.Generic;
+using System.Linq;
+using _Scripts.Data;
 using _Scripts.GameLogic.DragAndDrop;
 using _Scripts.GameLogic.Rectangle;
+using _Scripts.Infrastructure.Factory;
+using _Scripts.Infrastructure.Services;
+using _Scripts.Infrastructure.Services.PersistantProgress;
+using _Scripts.Infrastructure.Services.SaveLoad;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace _Scripts.GameLogic.DropZoneLogic
 {
-    public class TowerDropZone : DropZone
+    public class TowerDropZone : DropZone, ISavedProgress, IAcceptableDropZone
     {
         private List<GameObject> _towerBlocks = new List<GameObject>(); // Храним все объекты башни.
         [SerializeField] private RectTransform _selfRectTransform; // Для изменения зоны.
@@ -15,11 +22,17 @@ namespace _Scripts.GameLogic.DropZoneLogic
 
         private RectTransform _towerHeadRectTransform;
         private Vector3 _startPosition;
+        private ISaveLoadService _saveProgressService;
+        private List<Vector3> _rectanglePositions;
+        private GameFactory _gameFactory;
 
         protected override void Awake()
         {
             base.Awake();
             _startPosition = _selfRectTransform.position;
+            _saveProgressService = (SaveLoadService) AllServices.Container.Single<ISaveLoadService>();
+            _gameFactory = (GameFactory) AllServices.Container.Single<IGameFactory>();
+            _gameFactory.Register(this);
         }
 
         public override bool CanAcceptObject(DroppableObject droppableObject)
@@ -58,11 +71,14 @@ namespace _Scripts.GameLogic.DropZoneLogic
 
         private void AcceptObject(GameObject droppableObject, Vector3 targetPosition)
         {
+            _rectanglePositions = _towerBlocks.Select(t => t.transform.position).ToList();
+            _rectanglePositions.Add(targetPosition);
+
             AddToTower(droppableObject);
             AdjustZoneSize();
             MoveZoneAboveLastBlock(targetPosition);
-            // var rectangleDeath = droppableObject.GetComponent<RectangleDeath>();
-            // rectangleDeath.OnRectangleDeath += LowerTowerDown;
+
+            _saveProgressService.SaveProgress();
         }
 
         public override void OnDropLeft(GameObject deletedRectangle)
@@ -77,7 +93,10 @@ namespace _Scripts.GameLogic.DropZoneLogic
 
             MoveDownEveryTowerElement(deletedIndex, deletedHeight);
 
+            _rectanglePositions.RemoveAt(deletedIndex);
             _towerBlocks.RemoveAt(deletedIndex);
+
+            _saveProgressService.SaveProgress();
         }
 
         private void MoveDownEveryTowerElement(int deletedIndex, float deletedHeight)
@@ -87,6 +106,7 @@ namespace _Scripts.GameLogic.DropZoneLogic
                 GameObject currentBlock = _towerBlocks[i];
                 Vector3 newPosition = currentBlock.transform.position;
                 newPosition.y -= deletedHeight;
+                _rectanglePositions[i] = newPosition;
 
                 RectangleAnimator animator = currentBlock.GetComponent<RectangleAnimator>();
                 animator.MoveToPosition(newPosition);
@@ -124,6 +144,9 @@ namespace _Scripts.GameLogic.DropZoneLogic
 
                 _towerHeadRectTransform = null;
                 _towerBlocks.Clear();
+                _rectanglePositions.Clear();
+
+                _saveProgressService.SaveProgress();
 
                 return true;
             }
@@ -176,6 +199,40 @@ namespace _Scripts.GameLogic.DropZoneLogic
 
             return new Vector3(randomX, topPosition.y + _towerHeadRectTransform.rect.height / 2 + newBlockHeightOffset,
                 topPosition.z);
+        }
+
+        public void UpdateProgress(PlayerProgress progress)
+        {
+            var blocksInfo = new List<BlockInfo>();
+            Debug.Log(_towerBlocks.Count);
+
+            for (int i = 0; i < _towerBlocks.Count; i++)
+            {
+                Debug.Log("Cjsadsad");
+                Vector3Data towerBlockPosition = _rectanglePositions[i].ToVector3Data();
+
+                Color color = _towerBlocks[i].GetComponent<RectangleView>().Color;
+                blocksInfo.Add(new BlockInfo(color, towerBlockPosition));
+            }
+
+            string sceneName = SceneManager.GetActiveScene().name;
+            progress.TowerData = new TowerData(sceneName, blocksInfo);
+            Debug.Log(progress.TowerData.TowerBlocks.Count);
+        }
+
+        private void SaveResultPositions()
+        {
+            _saveProgressService.SaveProgress();
+        }
+
+        public void LoadProgress(PlayerProgress progress)
+        {
+        }
+
+        public void AcceptObject(DroppableObject droppableObject, Vector3 blockPosition)
+        {
+            AcceptObject(droppableObject.gameObject, blockPosition);
+            droppableObject.Accept(this);
         }
     }
 }

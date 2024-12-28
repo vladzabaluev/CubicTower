@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using _Scripts.Infrastructure.AssetManager;
+using _Scripts.Infrastructure.Services.PersistantProgress;
 using UnityEngine;
 
 namespace _Scripts.Infrastructure.Factory
@@ -7,6 +9,9 @@ namespace _Scripts.Infrastructure.Factory
     {
         private readonly IAssetProvider _assetProvider;
         private const string RectanglePath = "Prefabs/Rectangle";
+        public List<ISavedProgressReader> ProgressReaders { get; } = new();
+
+        public List<ISavedProgress> ProgressWriters { get; } = new();
 
         public GameFactory(IAssetProvider assetProvider)
         {
@@ -26,6 +31,31 @@ namespace _Scripts.Infrastructure.Factory
             GameObject rectangleButton = _assetProvider.Instantiate(RectanglePath);
             rectangleButton.transform.SetParent(buttonContainer);
             return rectangleButton;
+        }
+        private void RegisterProgressWatchers(GameObject registeredWatcher)
+        {
+            foreach (var progressReader in registeredWatcher.GetComponentsInChildren<ISavedProgressReader>())
+            {
+                Register(progressReader);
+            }
+        }
+        public void Register(ISavedProgressReader progressReader)
+        {
+            if (progressReader is ISavedProgress progressWriter)
+            {
+                Debug.Log("Writers registered");
+
+                ProgressWriters.Add(progressWriter);
+            }
+
+            Debug.Log("Watchers registered");
+
+            ProgressReaders.Add(progressReader);
+        }
+        public void CleanUp()
+        {
+            ProgressReaders.Clear();
+            ProgressWriters.Clear();
         }
     }
 }

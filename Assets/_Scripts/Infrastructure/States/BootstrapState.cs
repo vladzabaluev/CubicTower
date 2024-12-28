@@ -2,6 +2,8 @@ using System;
 using _Scripts.Infrastructure.AssetManager;
 using _Scripts.Infrastructure.Factory;
 using _Scripts.Infrastructure.Services;
+using _Scripts.Infrastructure.Services.PersistantProgress;
+using _Scripts.Infrastructure.Services.SaveLoad;
 using CodeBase.Infrastructure;
 
 namespace _Scripts.Infrastructure.States
@@ -9,7 +11,6 @@ namespace _Scripts.Infrastructure.States
     public class BootstrapState : IState
     {
         private const string Initial = "Initial";
-        private const string NextSceneName = "GameScene";
 
         private readonly GameStateMachine _gameStateMachine;
         private SceneLoader _sceneLoader;
@@ -35,13 +36,20 @@ namespace _Scripts.Infrastructure.States
 
         private void EnterLoadLevel()
         {
-            _gameStateMachine.Enter<LoadSceneState, string>(NextSceneName);
+            _gameStateMachine.Enter<LoadProgressState>();
         }
 
         private void RegisterServices()
         {
             _allServices.RegisterSingle<IAssetProvider>(new AssetProvider());
-            _allServices.RegisterSingle<IGameFactory>(new GameFactory((IAssetProvider) _allServices.Single<IAssetProvider>()));
+            _allServices.RegisterSingle<IPersistantProgressService>(new PersistantProgressService());
+
+            _allServices.RegisterSingle<IGameFactory>(
+                new GameFactory((IAssetProvider) _allServices.Single<IAssetProvider>()));
+
+            _allServices.RegisterSingle<ISaveLoadService>(new SaveLoadService(
+                (PersistantProgressService) _allServices.Single<IPersistantProgressService>(),
+                (GameFactory) _allServices.Single<IGameFactory>()));
         }
     }
 }

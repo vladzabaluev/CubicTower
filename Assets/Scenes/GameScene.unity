@@ -3124,7 +3124,7 @@ MonoBehaviour:
   - {fileID: 1744035710}
   - {fileID: 790781688}
   _towerDropZone: {fileID: 790781691}
-  _buildingPerimiterDropZone: {fileID: 1744035713}
+  _buildingPerimeterDropZone: {fileID: 0}
   _holeDropZone: {fileID: 1181544501}
 --- !u!4 &1538238993
 Transform:
