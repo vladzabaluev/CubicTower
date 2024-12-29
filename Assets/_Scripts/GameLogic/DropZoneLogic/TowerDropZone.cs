@@ -6,16 +6,19 @@ using _Scripts.Data;
 using _Scripts.GameLogic.DragAndDrop;
 using _Scripts.GameLogic.Rectangle;
 using _Scripts.Infrastructure.Factory;
+using _Scripts.Infrastructure.Reactive;
 using _Scripts.Infrastructure.Services;
 using _Scripts.Infrastructure.Services.PersistantProgress;
 using _Scripts.Infrastructure.Services.SaveLoad;
+using _Scripts.UI;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
 
 namespace _Scripts.GameLogic.DropZoneLogic
 {
-    public class TowerDropZone : DropZone, ISavedProgress, IAcceptableDropZone
+    public class TowerDropZone : DropZone, ISavedProgress, IAcceptableDropZone, IGameStateSender
     {
         private List<GameObject> _towerBlocks = new List<GameObject>();
         [SerializeField] private RectTransform _selfRectTransform;
@@ -25,13 +28,13 @@ namespace _Scripts.GameLogic.DropZoneLogic
         private RectTransform _towerHeadRectTransform;
         private ISaveLoadService _saveProgressService;
         private List<Vector3> _rectanglePositions;
-        private GameFactory _gameFactory;
+
+        [SerializeField] private RectTransform _topRectTransform;
 
         protected override void Awake()
         {
             base.Awake();
             _saveProgressService = (SaveLoadService) AllServices.Container.Single<ISaveLoadService>();
-            _gameFactory = (GameFactory) AllServices.Container.Single<IGameFactory>();
             _gameFactory.Register(this);
         }
 
@@ -40,7 +43,10 @@ namespace _Scripts.GameLogic.DropZoneLogic
             if (_collider.IsActiveZone)
             {
                 if (!droppableObject.CurrentDropZone)
+                {
+                    OnGameStateChange.Value = $"Установка кубика";
                     return true;
+                }
             }
 
             return false;
@@ -69,7 +75,18 @@ namespace _Scripts.GameLogic.DropZoneLogic
             AcceptObject(droppableObject, targetPosition);
             MoveZoneAboveLastBlock(targetPosition); //Must be in AcceptObject, but it's bugfix 
 
+            ChangeGameStatus();
+
             _saveProgressService.SaveProgress();
+        }
+
+        private void ChangeGameStatus()
+        {
+            Debug.Log("Asdad");
+            if (CheckUIBonds.AreRectTransformsOverlapping(_selfRectTransform, _topRectTransform))
+            {
+                OnGameStateChange.Value = $"Башня переполнена";
+            }
         }
 
         private void AcceptObject(GameObject droppableObject, Vector3 targetPosition)
@@ -219,6 +236,8 @@ namespace _Scripts.GameLogic.DropZoneLogic
         public void LoadProgress(PlayerProgress progress)
         {
             MoveDropZoneToCorrectPosition(); //Fix bug with incorrect zone position after saving
+            ChangeGameStatus();
+            //Make dropZoneCreating in GameFactory
         }
 
         private void MoveDropZoneToCorrectPosition()
@@ -236,9 +255,6 @@ namespace _Scripts.GameLogic.DropZoneLogic
                 // Убираем скобки
                 str = str.Trim('(', ')');
                 string[] values = str.Split(',');
-                Debug.Log(values[0]);
-                Debug.Log(values[1]);
-                Debug.Log(values[2]);
 
                 // Парсим координаты
                 float x = float.Parse(values[0], CultureInfo.InvariantCulture);

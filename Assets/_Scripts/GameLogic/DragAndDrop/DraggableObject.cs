@@ -1,4 +1,6 @@
 using System;
+using _Scripts.GameLogic.DropZoneLogic;
+using _Scripts.Infrastructure.Reactive;
 using _Scripts.UI;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -8,15 +10,17 @@ namespace _Scripts.GameLogic.DragAndDrop
     using UnityEngine;
     using UnityEngine.EventSystems;
 
-    public class DraggableObject : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler
+    public class DraggableObject : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler, IGameStateSender
     {
         [SerializeField] private Canvas _canvas;
         [SerializeField] private RectTransform _rectTransform;
         [SerializeField] private CanvasGroup _canvasGroup;
+        public ReactiveProperty<string> OnGameStateChange { get; }  = new ReactiveProperty<string>();
 
         private Vector2 _offset;
         public Vector3 PositionBeforeDrag { get; private set; }
         public event Action<Vector2> OnDrop;
+
         // public  Action OnDrop => _onDrop;
 
         public void Construct(Canvas canvas)
@@ -30,6 +34,8 @@ namespace _Scripts.GameLogic.DragAndDrop
             CalculatePointerOffset(eventData);
             OpacityHandler.MakeTransparency(_canvasGroup);
             BlockRaycatHandler.UnlockRaycast(_canvasGroup);
+
+            OnGameStateChange.Value = "";
         }
 
         public void OnDrag(PointerEventData eventData)

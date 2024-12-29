@@ -18,7 +18,11 @@ namespace _Scripts.GameLogic.DropZoneLogic
             if (_collider.IsActiveZone)
             {
                 if (droppableObject.CurrentDropZone == null)
+                {
+                    OnGameStateChange.Value = $"Пропадание объекта";
                     return true;
+
+                }
             }
 
             return false;

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using _Scripts.GameLogic.DropZoneLogic;
 using _Scripts.GameLogic.Rectangle;
 using _Scripts.Infrastructure.AssetManager;
 using _Scripts.Infrastructure.Services.PersistantProgress;
@@ -17,6 +18,7 @@ namespace _Scripts.Infrastructure.Factory
         public List<ISavedProgressReader> ProgressReaders { get; } = new();
 
         public List<ISavedProgress> ProgressWriters { get; } = new();
+        public List<IGameStateSender> GameStateChangers { get; } = new();
 
         public GameFactory(IAssetProvider assetProvider, IStaticDataService staticDataService)
         {
@@ -60,14 +62,15 @@ namespace _Scripts.Infrastructure.Factory
         {
             if (progressReader is ISavedProgress progressWriter)
             {
-                Debug.Log("Writers registered");
-
                 ProgressWriters.Add(progressWriter);
             }
 
-            Debug.Log("Watchers registered");
-
             ProgressReaders.Add(progressReader);
+        }
+
+        public void RegisterGameChanger(IGameStateSender gameChanger)
+        {
+            GameStateChangers.Add(gameChanger);
         }
 
         public void CleanUp()

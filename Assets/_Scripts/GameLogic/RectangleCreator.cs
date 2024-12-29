@@ -51,7 +51,6 @@ namespace _Scripts.GameLogic
         private void Awake()
         {
             _gameFactory = (GameFactory) AllServices.Container.Single<IGameFactory>();
-            Debug.Log("Awake in Creator");
             _gameFactory.Register(this);
 
             _dropZoneManager.Construct(_canvas);
