@@ -48,7 +48,7 @@ namespace _Scripts.GameLogic.DropZoneLogic
 
         public void LinkDroppableToZone(DroppableObject droppableObject, DropZone dropZone, Vector3 position)
         {
-            dropZone.GetComponent<IAcceptableDropZone>()?.AcceptObject(droppableObject, position);
+            dropZone.GetComponent<IAcceptableDropZone>()?.AcceptObjectWithoutChecks(droppableObject, position);
         }
     }
 }

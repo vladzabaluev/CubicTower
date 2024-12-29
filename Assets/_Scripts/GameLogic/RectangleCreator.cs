@@ -21,7 +21,7 @@ namespace _Scripts.GameLogic
         [SerializeField] private Transform _rectangleContainer;
         [SerializeField] private List<RectangleButton> _rectangleButtons;
 
-        private GameFactory _gameFactory;
+        private IGameFactory _gameFactory;
 
         [SerializeField] private DropZoneManager _dropZoneManager;
 
@@ -102,9 +102,7 @@ namespace _Scripts.GameLogic
 
                 RectangleView rectangleView = rectangle.GetComponent<RectangleView>();
 
-                Vector2 buttonSize = _rectangleButtons[0].transform.GetComponent<RectTransform>().sizeDelta;
-
-                rectangleView.SetView(buttonSize, blockInfo.Color);
+                rectangleView.SetView(new Vector2(55, 55), blockInfo.Color);
 
                 _dropZoneManager.LinkDroppableToZone(droppableObject, _dropZoneManager.TowerDropZone, blockPosition);
             }

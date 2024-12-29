@@ -9,6 +9,7 @@ namespace _Scripts.Infrastructure.Factory
     {
         private readonly IAssetProvider _assetProvider;
         private const string RectanglePath = "Prefabs/Rectangle";
+        private const string RectangleButtonPath = "Prefabs/RectangleButton";
         public List<ISavedProgressReader> ProgressReaders { get; } = new();
 
         public List<ISavedProgress> ProgressWriters { get; } = new();
@@ -26,13 +27,14 @@ namespace _Scripts.Infrastructure.Factory
             return rectangle;
         }
 
-        public GameObject CreateRectangleButton(GameObject prefab, Transform buttonContainer)
+        public GameObject CreateRectangleButton(Transform buttonContainer)
         {
-            GameObject rectangleButton = _assetProvider.Instantiate(RectanglePath);
+            GameObject rectangleButton = _assetProvider.Instantiate(RectangleButtonPath);
             rectangleButton.transform.SetParent(buttonContainer);
             return rectangleButton;
         }
-        private void RegisterProgressWatchers(GameObject registeredWatcher)
+
+        public void RegisterProgressWatchers(GameObject registeredWatcher)
         {
             foreach (var progressReader in registeredWatcher.GetComponentsInChildren<ISavedProgressReader>())
             {

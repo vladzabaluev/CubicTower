@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using _Scripts.Data;
 using _Scripts.GameLogic.DragAndDrop;
@@ -9,19 +11,18 @@ using _Scripts.Infrastructure.Services.PersistantProgress;
 using _Scripts.Infrastructure.Services.SaveLoad;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Random = UnityEngine.Random;
 
 namespace _Scripts.GameLogic.DropZoneLogic
 {
     public class TowerDropZone : DropZone, ISavedProgress, IAcceptableDropZone
     {
-        private List<GameObject> _towerBlocks = new List<GameObject>(); // Храним все объекты башни.
-        [SerializeField] private RectTransform _selfRectTransform; // Для изменения зоны.
-        private float _blockHeight = 0f; // Высота блока (устанавливается динамически).
+        private List<GameObject> _towerBlocks = new List<GameObject>();
+        [SerializeField] private RectTransform _selfRectTransform;
 
         [SerializeField] private RectTransform _floor;
 
         private RectTransform _towerHeadRectTransform;
-        private Vector3 _startPosition;
         private ISaveLoadService _saveProgressService;
         private List<Vector3> _rectanglePositions;
         private GameFactory _gameFactory;
@@ -29,7 +30,6 @@ namespace _Scripts.GameLogic.DropZoneLogic
         protected override void Awake()
         {
             base.Awake();
-            _startPosition = _selfRectTransform.position;
             _saveProgressService = (SaveLoadService) AllServices.Container.Single<ISaveLoadService>();
             _gameFactory = (GameFactory) AllServices.Container.Single<IGameFactory>();
             _gameFactory.Register(this);
@@ -67,18 +67,17 @@ namespace _Scripts.GameLogic.DropZoneLogic
             }
 
             AcceptObject(droppableObject, targetPosition);
+            MoveZoneAboveLastBlock(targetPosition); //Must be in AcceptObject, but it's bugfix 
+
+            _saveProgressService.SaveProgress();
         }
 
         private void AcceptObject(GameObject droppableObject, Vector3 targetPosition)
         {
             _rectanglePositions = _towerBlocks.Select(t => t.transform.position).ToList();
             _rectanglePositions.Add(targetPosition);
-
             AddToTower(droppableObject);
             AdjustZoneSize();
-            MoveZoneAboveLastBlock(targetPosition);
-
-            _saveProgressService.SaveProgress();
         }
 
         public override void OnDropLeft(GameObject deletedRectangle)
@@ -132,8 +131,6 @@ namespace _Scripts.GameLogic.DropZoneLogic
         {
             if (_towerBlocks.Count == 1)
             {
-                Debug.Log(_selfRectTransform.position);
-                Debug.Log(_startPosition);
                 _selfRectTransform.anchoredPosition = Vector2.zero;
 
                 _selfRectTransform.anchorMin = Vector2.zero;
@@ -181,6 +178,8 @@ namespace _Scripts.GameLogic.DropZoneLogic
                 lastBlockPosition.z);
 
             _selfRectTransform.position = newPosition;
+
+            PlayerPrefs.SetString("Position", _selfRectTransform.localPosition.ToString());
         }
 
         private Vector3 GetRandomPositionOnTop(GameObject newBlock)
@@ -204,11 +203,9 @@ namespace _Scripts.GameLogic.DropZoneLogic
         public void UpdateProgress(PlayerProgress progress)
         {
             var blocksInfo = new List<BlockInfo>();
-            Debug.Log(_towerBlocks.Count);
 
             for (int i = 0; i < _towerBlocks.Count; i++)
             {
-                Debug.Log("Cjsadsad");
                 Vector3Data towerBlockPosition = _rectanglePositions[i].ToVector3Data();
 
                 Color color = _towerBlocks[i].GetComponent<RectangleView>().Color;
@@ -217,19 +214,42 @@ namespace _Scripts.GameLogic.DropZoneLogic
 
             string sceneName = SceneManager.GetActiveScene().name;
             progress.TowerData = new TowerData(sceneName, blocksInfo);
-            Debug.Log(progress.TowerData.TowerBlocks.Count);
-        }
-
-        private void SaveResultPositions()
-        {
-            _saveProgressService.SaveProgress();
         }
 
         public void LoadProgress(PlayerProgress progress)
         {
+            MoveDropZoneToCorrectPosition(); //Fix bug with incorrect zone position after saving
         }
 
-        public void AcceptObject(DroppableObject droppableObject, Vector3 blockPosition)
+        private void MoveDropZoneToCorrectPosition()
+        {
+            string savedPosition = PlayerPrefs.GetString("Position");
+
+            if (savedPosition.Length > 1)
+            {
+                _selfRectTransform.localPosition = ParseVector3(savedPosition);
+            }
+
+            Vector3 ParseVector3(string str)
+            {
+                Debug.Log(str);
+                // Убираем скобки
+                str = str.Trim('(', ')');
+                string[] values = str.Split(',');
+                Debug.Log(values[0]);
+                Debug.Log(values[1]);
+                Debug.Log(values[2]);
+
+                // Парсим координаты
+                float x = float.Parse(values[0], CultureInfo.InvariantCulture);
+                float y = float.Parse(values[1], CultureInfo.InvariantCulture);
+                float z = float.Parse(values[2], CultureInfo.InvariantCulture);
+
+                return new Vector3(x, y, z);
+            }
+        }
+
+        public void AcceptObjectWithoutChecks(DroppableObject droppableObject, Vector3 blockPosition)
         {
             AcceptObject(droppableObject.gameObject, blockPosition);
             droppableObject.Accept(this);

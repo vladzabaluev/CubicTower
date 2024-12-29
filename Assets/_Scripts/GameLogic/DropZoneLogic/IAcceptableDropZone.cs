@@ -5,6 +5,6 @@ namespace _Scripts.GameLogic.DropZoneLogic
 {
     public interface IAcceptableDropZone
     {
-        public void AcceptObject(DroppableObject droppableObject, Vector3 blockPosition);
+        public void AcceptObjectWithoutChecks(DroppableObject droppableObject, Vector3 blockPosition);
     }
 }
