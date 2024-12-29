@@ -5,6 +5,7 @@ using _Scripts.Infrastructure.Factory;
 using _Scripts.Infrastructure.Services;
 using _Scripts.Infrastructure.Services.PersistantProgress;
 using _Scripts.Infrastructure.Services.SaveLoad;
+using _Scripts.Infrastructure.Services.StaticData;
 using CodeBase.Infrastructure;
 
 namespace _Scripts.Infrastructure.States
@@ -24,11 +25,12 @@ namespace _Scripts.Infrastructure.States
                 [typeof(BootstrapState)] = new BootstrapState(this, sceneLoader, _allServices),
                 [typeof(LoadProgressState)] =
                     new LoadProgressState(this,
-                        (PersistantProgressService) _allServices.Single<IPersistantProgressService>(),
-                        (SaveLoadService) _allServices.Single<ISaveLoadService>(), sceneLoader, _allServices),
+                        (IPersistantProgressService) _allServices.Single<IPersistantProgressService>(),
+                        (ISaveLoadService) _allServices.Single<ISaveLoadService>(), sceneLoader, _allServices),
                 [typeof(LoadLevelState)] = new LoadLevelState(this, sceneLoader, loadingCurtain,
                     (IGameFactory) _allServices.Single<IGameFactory>(),
-                    (PersistantProgressService) _allServices.Single<IPersistantProgressService>()),
+                    (IPersistantProgressService) _allServices.Single<IPersistantProgressService>(),
+                    (IStaticDataService) _allServices.Single<IStaticDataService>()),
                 [typeof(GameLoopState)] = new GameLoopState(this), };
         }
 

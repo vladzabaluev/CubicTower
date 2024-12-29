@@ -8,7 +8,7 @@ namespace _Scripts.Infrastructure.Factory
     public interface IGameFactory : IService
     {
         GameObject CreateRectangle(Vector3 at, Transform parent);
-        GameObject CreateRectangleButton(Transform buttonContainer);
+        List<GameObject> CreateRectangleButtons(Transform buttonContainer);
         List<ISavedProgressReader> ProgressReaders { get; }
         List<ISavedProgress> ProgressWriters { get; }
         void RegisterProgressWatchers(GameObject registeredWatcher);

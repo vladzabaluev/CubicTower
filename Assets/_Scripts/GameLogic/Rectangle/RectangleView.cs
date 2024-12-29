@@ -17,6 +17,12 @@ namespace _Scripts.GameLogic.Rectangle
             Color = color;
         }
 
+        public void SetColor(Color color)
+        {
+            _background.color = color;
+            Color = color;
+        }
+
         private void Awake()
         {
             Color = _background.color;

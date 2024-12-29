@@ -18,12 +18,35 @@ namespace _Scripts.GameLogic
     public class RectangleCreator : MonoBehaviour, ISavedProgressReader
     {
         [SerializeField] private Canvas _canvas;
-        [SerializeField] private Transform _rectangleContainer;
-        [SerializeField] private List<RectangleButton> _rectangleButtons;
-
-        private IGameFactory _gameFactory;
 
         [SerializeField] private DropZoneManager _dropZoneManager;
+
+        private IGameFactory _gameFactory;
+        [SerializeField] private List<RectangleButton> _rectangleButtons;
+        [SerializeField] private Transform _rectangleContainer;
+
+        public void LoadProgress(PlayerProgress progress)
+        {
+            List<BlockInfo> blocksInfo = progress.TowerData.TowerBlocks;
+
+            foreach (var blockInfo in blocksInfo)
+            {
+                var blockPosition = blockInfo.Position.ToUnityVector3();
+                GameObject rectangle = _gameFactory.CreateRectangle(blockPosition, _rectangleContainer);
+
+                DraggableObject draggableObject = rectangle.GetComponent<DraggableObject>();
+                draggableObject.Construct(_canvas);
+
+                DroppableObject droppableObject = rectangle.GetComponent<DroppableObject>();
+                droppableObject.Construct(_dropZoneManager);
+
+                RectangleView rectangleView = rectangle.GetComponent<RectangleView>();
+
+                rectangleView.SetView(new Vector2(55, 55), blockInfo.Color);
+
+                _dropZoneManager.LinkDroppableToZone(droppableObject, _dropZoneManager.TowerDropZone, blockPosition);
+            }
+        }
 
         private void Awake()
         {
@@ -32,6 +55,11 @@ namespace _Scripts.GameLogic
             _gameFactory.Register(this);
 
             _dropZoneManager.Construct(_canvas);
+        }
+
+        public void Construct(List<RectangleButton> rectangleButtons)
+        {
+            _rectangleButtons = rectangleButtons;
 
             foreach (var button in _rectangleButtons)
             {
@@ -45,6 +73,9 @@ namespace _Scripts.GameLogic
 
             var rectangle = _gameFactory.CreateRectangle(GetButtonPosition(rectButtonTransform), _rectangleContainer);
             var draggableObject = rectangle.GetComponent<DraggableObject>();
+
+            rectangle.GetComponent<RectangleView>().SetView(rectButtonTransform.sizeDelta,
+                rectangleButton.GetComponent<RectangleView>().Color);
 
             InitializeRectangle(eventData, draggableObject, rectButtonTransform);
             SubscribeOnEvents(rectangleButton, draggableObject);
@@ -83,29 +114,6 @@ namespace _Scripts.GameLogic
                 _canvas.worldCamera, out var localPosition);
 
             return containerRectTransform.TransformPoint(localPosition);
-        }
-
-        public void LoadProgress(PlayerProgress progress)
-        {
-            List<BlockInfo> blocksInfo = progress.TowerData.TowerBlocks;
-
-            foreach (var blockInfo in blocksInfo)
-            {
-                var blockPosition = blockInfo.Position.ToUnityVector3();
-                GameObject rectangle = _gameFactory.CreateRectangle(blockPosition, _rectangleContainer);
-
-                DraggableObject draggableObject = rectangle.GetComponent<DraggableObject>();
-                draggableObject.Construct(_canvas);
-
-                DroppableObject droppableObject = rectangle.GetComponent<DroppableObject>();
-                droppableObject.Construct(_dropZoneManager);
-
-                RectangleView rectangleView = rectangle.GetComponent<RectangleView>();
-
-                rectangleView.SetView(new Vector2(55, 55), blockInfo.Color);
-
-                _dropZoneManager.LinkDroppableToZone(droppableObject, _dropZoneManager.TowerDropZone, blockPosition);
-            }
         }
     }
 }

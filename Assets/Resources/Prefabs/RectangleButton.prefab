@@ -87,6 +87,7 @@ GameObject:
   - component: {fileID: 3833517966770302865}
   - component: {fileID: 6058617406986409202}
   - component: {fileID: 3121849155932286168}
+  - component: {fileID: 7150752702539991518}
   m_Layer: 5
   m_Name: RectangleButton
   m_TagString: Untagged
@@ -154,6 +155,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b863e4a10fa043fb8e878ad73727ec48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &7150752702539991518
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2476598923004318121}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39a0d2b94a8c478c8902b84c4d406dd6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _background: {fileID: 4933562113667363705}
+  _rectTransform: {fileID: 5046108160186017777}
 --- !u!1 &3284752474115261052
 GameObject:
   m_ObjectHideFlags: 0
