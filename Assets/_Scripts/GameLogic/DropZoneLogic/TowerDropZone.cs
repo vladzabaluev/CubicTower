@@ -10,6 +10,7 @@ using _Scripts.Infrastructure.Reactive;
 using _Scripts.Infrastructure.Services;
 using _Scripts.Infrastructure.Services.PersistantProgress;
 using _Scripts.Infrastructure.Services.SaveLoad;
+using _Scripts.Localization;
 using _Scripts.UI;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -20,6 +21,9 @@ namespace _Scripts.GameLogic.DropZoneLogic
 {
     public class TowerDropZone : DropZone, ISavedProgress, IAcceptableDropZone, IGameStateSender
     {
+        private const string CubeInstallation = "CubeInstallation";
+        private const string TowerOverflow = "TowerOverflow";
+
         private List<GameObject> _towerBlocks = new List<GameObject>();
         [SerializeField] private RectTransform _selfRectTransform;
 
@@ -36,6 +40,9 @@ namespace _Scripts.GameLogic.DropZoneLogic
             base.Awake();
             _saveProgressService = (SaveLoadService) AllServices.Container.Single<ISaveLoadService>();
             _gameFactory.Register(this);
+
+            Localization.Add(CubeInstallation, new LocalizationVariant("Установка куба", "Cube was installed"));
+            Localization.Add(TowerOverflow, new LocalizationVariant("Башня переполнена", "Tower is overflowed"));
         }
 
         public override bool CanAcceptObject(DroppableObject droppableObject)
@@ -44,7 +51,7 @@ namespace _Scripts.GameLogic.DropZoneLogic
             {
                 if (!droppableObject.CurrentDropZone)
                 {
-                    OnGameStateChange.Value = $"Установка кубика";
+                    OnGameStateChange.Value = Localization[CubeInstallation].GetCurrent();
                     return true;
                 }
             }
@@ -75,17 +82,18 @@ namespace _Scripts.GameLogic.DropZoneLogic
             AcceptObject(droppableObject, targetPosition);
             MoveZoneAboveLastBlock(targetPosition); //Must be in AcceptObject, but it's bugfix 
 
-            ChangeGameStatus();
+            ChangeGameStatusToTowerOverflow();
 
             _saveProgressService.SaveProgress();
         }
 
-        private void ChangeGameStatus()
+        private void ChangeGameStatusToTowerOverflow()
         {
-            Debug.Log("Asdad");
+            Debug.Log("Make check for status send");
+
             if (CheckUIBonds.AreRectTransformsOverlapping(_selfRectTransform, _topRectTransform))
             {
-                OnGameStateChange.Value = $"Башня переполнена";
+                OnGameStateChange.Value = Localization[TowerOverflow].GetCurrent();
             }
         }
 
@@ -236,7 +244,7 @@ namespace _Scripts.GameLogic.DropZoneLogic
         public void LoadProgress(PlayerProgress progress)
         {
             MoveDropZoneToCorrectPosition(); //Fix bug with incorrect zone position after saving
-            ChangeGameStatus();
+            ChangeGameStatusToTowerOverflow();
             //Make dropZoneCreating in GameFactory
         }
 

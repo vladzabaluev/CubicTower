@@ -1,8 +1,10 @@
+using System.Collections.Generic;
 using _Scripts.GameLogic.DragAndDrop;
 using _Scripts.GameLogic.Rectangle;
 using _Scripts.Infrastructure.Factory;
 using _Scripts.Infrastructure.Reactive;
 using _Scripts.Infrastructure.Services;
+using _Scripts.Localization;
 using UnityEngine;
 
 namespace _Scripts.GameLogic.DropZoneLogic
@@ -12,8 +14,11 @@ namespace _Scripts.GameLogic.DropZoneLogic
     {
         protected DropZoneCollider _collider;
 
+        public Dictionary<string, LocalizationVariant> Localization { get; }= new Dictionary<string, LocalizationVariant>();
         public ReactiveProperty<string> OnGameStateChange { get; } = new ReactiveProperty<string>();
+
         protected IGameFactory _gameFactory;
+        // protected Dictionary<string, LocalizationVariant> Localization = new Dictionary<string, LocalizationVariant>();
 
         protected virtual void Awake()
         {

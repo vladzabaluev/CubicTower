@@ -2,6 +2,7 @@ using System.Linq;
 using _Scripts.GameLogic;
 using _Scripts.GameLogic.DragAndDrop;
 using _Scripts.Infrastructure.Factory;
+using _Scripts.Infrastructure.Services.Localization;
 using _Scripts.Infrastructure.Services.PersistantProgress;
 using _Scripts.Infrastructure.Services.StaticData;
 using CodeBase.Infrastructure;
@@ -17,9 +18,11 @@ namespace _Scripts.Infrastructure.States
         private readonly IGameFactory _gameFactory;
         private readonly IPersistantProgressService _progressService;
         private readonly IStaticDataService _staticDataService;
+        private readonly ILocalizationService _localizationService;
 
         public LoadLevelState(GameStateMachine gameStateMachine, SceneLoader sceneLoader, LoadingCurtain loadingCurtain,
-            IGameFactory gameFactory, IPersistantProgressService progressService, IStaticDataService staticDataService)
+            IGameFactory gameFactory, IPersistantProgressService progressService, IStaticDataService 
+                staticDataService, ILocalizationService localizationService)
         {
             _gameStateMachine = gameStateMachine;
             _sceneLoader = sceneLoader;
@@ -27,6 +30,7 @@ namespace _Scripts.Infrastructure.States
             _gameFactory = gameFactory;
             _progressService = progressService;
             _staticDataService = staticDataService;
+            _localizationService = localizationService;
         }
 
         public void Enter(string sceneName)
@@ -45,6 +49,7 @@ namespace _Scripts.Infrastructure.States
         {
             InitGameWorld();
             InformProgressReaders();
+            _localizationService.ChangeLanguage(Language.Russian); //тут из сохранения подгружать
             _gameStateMachine.Enter<GameLoopState>();
         }
 

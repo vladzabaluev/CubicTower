@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using _Scripts.GameLogic;
 using _Scripts.Infrastructure.Factory;
 using _Scripts.Infrastructure.Services;
+using _Scripts.Infrastructure.Services.Localization;
 using _Scripts.Infrastructure.Services.PersistantProgress;
 using _Scripts.Infrastructure.Services.SaveLoad;
 using _Scripts.Infrastructure.Services.StaticData;
@@ -30,7 +31,8 @@ namespace _Scripts.Infrastructure.States
                 [typeof(LoadLevelState)] = new LoadLevelState(this, sceneLoader, loadingCurtain,
                     (IGameFactory) _allServices.Single<IGameFactory>(),
                     (IPersistantProgressService) _allServices.Single<IPersistantProgressService>(),
-                    (IStaticDataService) _allServices.Single<IStaticDataService>()),
+                    (IStaticDataService) _allServices.Single<IStaticDataService>(),
+                    (ILocalizationService) _allServices.Single<ILocalizationService>()),
                 [typeof(GameLoopState)] = new GameLoopState(this), };
         }
 

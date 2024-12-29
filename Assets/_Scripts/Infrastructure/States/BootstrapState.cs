@@ -2,6 +2,7 @@ using System;
 using _Scripts.Infrastructure.AssetManager;
 using _Scripts.Infrastructure.Factory;
 using _Scripts.Infrastructure.Services;
+using _Scripts.Infrastructure.Services.Localization;
 using _Scripts.Infrastructure.Services.PersistantProgress;
 using _Scripts.Infrastructure.Services.SaveLoad;
 using _Scripts.Infrastructure.Services.StaticData;
@@ -54,6 +55,8 @@ namespace _Scripts.Infrastructure.States
             _allServices.RegisterSingle<ISaveLoadService>(new SaveLoadService(
                 (PersistantProgressService) _allServices.Single<IPersistantProgressService>(),
                 (GameFactory) _allServices.Single<IGameFactory>()));
+            
+            _allServices.RegisterSingle<ILocalizationService>(new LocalizationService());
         }
     }
 }

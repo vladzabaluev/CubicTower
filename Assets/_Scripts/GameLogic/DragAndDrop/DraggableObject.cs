@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using _Scripts.GameLogic.DropZoneLogic;
 using _Scripts.Infrastructure.Reactive;
+using _Scripts.Localization;
 using _Scripts.UI;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -15,12 +17,14 @@ namespace _Scripts.GameLogic.DragAndDrop
         [SerializeField] private Canvas _canvas;
         [SerializeField] private RectTransform _rectTransform;
         [SerializeField] private CanvasGroup _canvasGroup;
-        public ReactiveProperty<string> OnGameStateChange { get; }  = new ReactiveProperty<string>();
 
         private Vector2 _offset;
         public Vector3 PositionBeforeDrag { get; private set; }
         public event Action<Vector2> OnDrop;
 
+        public Dictionary<string, LocalizationVariant> Localization { get; }
+
+        public ReactiveProperty<string> OnGameStateChange { get; } = new ReactiveProperty<string>();
         // public  Action OnDrop => _onDrop;
 
         public void Construct(Canvas canvas)
