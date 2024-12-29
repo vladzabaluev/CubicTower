@@ -244,7 +244,12 @@ namespace _Scripts.GameLogic.DropZoneLogic
         public void LoadProgress(PlayerProgress progress)
         {
             MoveDropZoneToCorrectPosition(); //Fix bug with incorrect zone position after saving
-            ChangeGameStatusToTowerOverflow();
+
+            if (CheckUIBonds.IsUIElementOnScreen(_selfRectTransform))
+            {
+                Debug.Log(_selfRectTransform.position);
+                OnGameStateChange.Value = Localization[TowerOverflow].GetCurrent();
+            }
             //Make dropZoneCreating in GameFactory
         }
 
