@@ -8,7 +8,8 @@ namespace _Scripts.GameLogic.DropZoneLogic
 {
     public class HoleDropZone : DropZone
     {
-        [SerializeField] private Transform _targetHolePosition;
+        [SerializeField] private Transform _holeCenterPosition;
+        [SerializeField] private Transform _finishHolePosition;
 
         public Action<GameObject> OnHitHole { get; private set; }
         private const string CubeDestroyed = "CubeDestroyed";
@@ -25,7 +26,12 @@ namespace _Scripts.GameLogic.DropZoneLogic
             OnHitHole?.Invoke(droppableObject);
             var rectangleAnimator = droppableObject.GetComponent<RectangleAnimator>();
 
-            rectangleAnimator?.StrangeMoveTo(_targetHolePosition.position, 2, () => DestroyRectangle(droppableObject));
+            Vector3 size = droppableObject.GetComponent<RectTransform>().localScale;
+            droppableObject.transform.SetParent(this.transform);
+            droppableObject.GetComponent<RectTransform>().localScale = size;
+
+            rectangleAnimator?.StrangeMoveTo(_holeCenterPosition.position, _finishHolePosition.position, 4,
+                () => DestroyRectangle(droppableObject));
         }
 
         public override bool CanAcceptObject(DroppableObject droppableObject)

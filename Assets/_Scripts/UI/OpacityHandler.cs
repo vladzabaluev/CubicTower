@@ -13,7 +13,7 @@ namespace _Scripts.UI
         public static void MakeOpaque(CanvasGroup canvasGroup)
         {
             canvasGroup.alpha = 1f;
-            BlockRaycatHandler.LockRaycast(canvasGroup);
+            BlockRaycatHandler.UnblockRaycastCatch(canvasGroup);
         }
     }
 }

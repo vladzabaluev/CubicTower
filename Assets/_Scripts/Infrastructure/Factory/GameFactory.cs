@@ -29,7 +29,10 @@ namespace _Scripts.Infrastructure.Factory
         public GameObject CreateRectangle(Vector3 at, Transform parent)
         {
             GameObject rectangle = _assetProvider.InstantiateAt(RectanglePath, at);
+
+            Vector3 originalScale = rectangle.transform.localScale;
             rectangle.transform.SetParent(parent);
+            rectangle.transform.localScale = originalScale;
 
             return rectangle;
         }

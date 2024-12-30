@@ -4,12 +4,12 @@ namespace _Scripts.UI
 {
     public class BlockRaycatHandler
     {
-        public static void UnlockRaycast(CanvasGroup canvasGroup)
+        public static void BlockRaycastCatch(CanvasGroup canvasGroup)
         {
             canvasGroup.blocksRaycasts = false;
         }
 
-        public static void LockRaycast(CanvasGroup canvasGroup)
+        public static void UnblockRaycastCatch(CanvasGroup canvasGroup)
         {
             canvasGroup.blocksRaycasts = true;
         }

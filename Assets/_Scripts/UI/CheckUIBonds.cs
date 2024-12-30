@@ -4,20 +4,15 @@ namespace _Scripts.UI
 {
     public class CheckUIBonds
     {
-        public static bool IsUIElementOnScreen(RectTransform rectTransform)
+        public static bool IsOnScreen(RectTransform rectTransform)
         {
-            Vector3 position = rectTransform.position;
-            // position = Transform.TransformPoint(position);
-            Vector3 screenMin = Vector3.zero;
-            Vector3 screenMax = new Vector3(Screen.width, Screen.height, 0);
+            Vector3 viewportPoint = Camera.main.WorldToViewportPoint(rectTransform.transform.position);
 
-            if (position.x >= screenMin.x && position.x <= screenMax.x && position.y >= screenMin.y &&
-                position.y <= screenMax.y)
-            {
-                return true;
-            }
-
-            return false;
+            // Проверяем, находится ли объект в пределах [0, 1] по x и y, а также перед камерой (z > 0)
+            return viewportPoint.x >= 0 && viewportPoint.x <= 1 &&
+                   viewportPoint.y >= 0 && viewportPoint.y <= 1 &&
+                   viewportPoint.z > 0;
+        
         }
 
         public static bool AreRectTransformsOverlapping(RectTransform rt1, RectTransform rt2)

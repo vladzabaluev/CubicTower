@@ -18,29 +18,60 @@ namespace _Scripts.GameLogic.Rectangle
 
         public void MoveToPosition(Vector3 targetPosition, Action onComplete = null)
         {
+            CanvasGroup canvasGroup = GetComponent<CanvasGroup>();
+            BlockRaycatHandler.BlockRaycastCatch(canvasGroup);
+
+            float liftDuration = 0.5f; // Время, которое объект будет подниматься вверх
+            Vector3 liftPosition = transform.position + new Vector3(0, Screen.height / 7f, 0); 
+
+            Tween liftTween = transform.DOMove(liftPosition, liftDuration).SetEase(Ease.OutQuad);
+
+            float moveDuration = 1f; // Вычисление времени для перемещения
+
+            Tween moveTween = transform.DOMove(targetPosition, moveDuration).SetEase(Ease.InOutSine);
+
+            DOTween.Sequence().Append(liftTween) // Сначала поднимаемся вверх
+                .Append(moveTween) // Затем движемся к цели
+                .OnComplete(() =>
+                {
+                    BlockRaycatHandler.UnblockRaycastCatch(canvasGroup); // Блокируем raycast по завершению
+                    onComplete?.Invoke(); // Вызываем callback по завершению
+                });
+        }
+        public void SimpleMoveToPosition(Vector3 targetPosition, Action onComplete = null)
+        {
             transform.DOMove(targetPosition, animationSpeed).SetEase(Ease.InOutSine)
                 .OnComplete(() => { onComplete?.Invoke(); });
         }
 
-        public void StrangeMoveTo(Vector3 targetPosition, float totalDuration, Action onComplete = null)
+        public void StrangeMoveTo(Vector3 firstPoint, Vector3 targetPosition, float totalDuration,
+            Action onComplete = null)
         {
             CanvasGroup canvasGroup = GetComponent<CanvasGroup>();
-            BlockRaycatHandler.UnlockRaycast(canvasGroup);
+            BlockRaycatHandler.BlockRaycastCatch(canvasGroup);
 
-            float rotationDuration = totalDuration / 2;
+            float rotationDuration = totalDuration / 3;
+            float moveToFirstPointDuration = totalDuration * 2 / 3;
+            float delayBeforeMovingToTarget = 0.5f;
 
-            Tween rotationTween = transform
-                .DORotate(new Vector3(0, 0, -360), rotationDuration, RotateMode.FastBeyond360).SetEase(Ease.InOutSine);
+            Tween rotationTween = transform.DORotate(new Vector3(0, 0, 360), rotationDuration, RotateMode.FastBeyond360)
+                .SetEase(Ease.InOutSine).SetLoops(-1, LoopType.Restart);
 
-            Tween moveTween = transform.DOMove(targetPosition, totalDuration).SetEase(Ease.InOutQuad);
+            Tween moveToFirstPointTween = transform
+                .DOMove(firstPoint, moveToFirstPointDuration).SetEase(Ease.InOutQuad);
 
-            DOTween.Sequence().Append(rotationTween).Join(moveTween).OnComplete(() => onComplete?.Invoke());
+            Tween fadeOutTween = canvasGroup.DOFade(0, moveToFirstPointDuration); // Сразу делает объект прозрачным
+
+            Tween moveToTargetTween = transform.DOMove(targetPosition, totalDuration / 3).SetEase(Ease.InOutQuad);
+
+            DOTween.Sequence().Append(fadeOutTween).Join(rotationTween).Join(moveToFirstPointTween)
+                .AppendInterval(delayBeforeMovingToTarget).Append(moveToTargetTween).OnKill(() => onComplete?.Invoke());
         }
 
         public void Disappear(float duration, Action onComplete = null)
         {
             CanvasGroup canvasGroup = GetComponent<CanvasGroup>();
-            BlockRaycatHandler.UnlockRaycast(canvasGroup);
+            BlockRaycatHandler.BlockRaycastCatch(canvasGroup);
 
             Sequence fadeSequence = DOTween.Sequence();
 

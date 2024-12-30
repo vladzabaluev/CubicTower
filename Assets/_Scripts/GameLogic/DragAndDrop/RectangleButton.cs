@@ -10,9 +10,13 @@ namespace _Scripts.GameLogic.DragAndDrop
         public event Action<PointerEventData> OnButtonDrag;
         public event Action<PointerEventData> OnRelease;
 
+        private Vector3 _startPosition;
+        public event Action<Vector3> OnButtonRelease;
+
         public void OnBeginDrag(PointerEventData eventData)
         {
             OnPointerDown?.Invoke(eventData, this);
+            _startPosition = transform.position;
         }
 
         public void OnDrag(PointerEventData eventData)
@@ -23,7 +27,7 @@ namespace _Scripts.GameLogic.DragAndDrop
         public void OnEndDrag(PointerEventData eventData)
         {
             OnRelease?.Invoke(eventData);
-
+            OnButtonRelease?.Invoke(_startPosition);
             ClearEvents();
         }
 

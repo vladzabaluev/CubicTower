@@ -37,7 +37,7 @@ namespace _Scripts.GameLogic.DragAndDrop
             PositionBeforeDrag = _rectTransform.position;
             CalculatePointerOffset(eventData);
             OpacityHandler.MakeTransparency(_canvasGroup);
-            BlockRaycatHandler.UnlockRaycast(_canvasGroup);
+            BlockRaycatHandler.BlockRaycastCatch(_canvasGroup);
 
             OnGameStateChange.Value = "";
         }
@@ -50,7 +50,7 @@ namespace _Scripts.GameLogic.DragAndDrop
         public void OnEndDrag(PointerEventData eventData)
         {
             OpacityHandler.MakeOpaque(_canvasGroup);
-            BlockRaycatHandler.LockRaycast(_canvasGroup);
+            BlockRaycatHandler.UnblockRaycastCatch(_canvasGroup);
             OnDrop?.Invoke(eventData.position);
         }
 

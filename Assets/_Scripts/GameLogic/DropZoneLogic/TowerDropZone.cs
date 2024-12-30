@@ -23,17 +23,46 @@ namespace _Scripts.GameLogic.DropZoneLogic
     {
         private const string CubeInstallation = "CubeInstallation";
         private const string TowerOverflow = "TowerOverflow";
-
-        private List<GameObject> _towerBlocks = new List<GameObject>();
-        [SerializeField] private RectTransform _selfRectTransform;
+        [SerializeField] private Canvas _canvas;
 
         [SerializeField] private RectTransform _floor;
-
-        private RectTransform _towerHeadRectTransform;
-        private ISaveLoadService _saveProgressService;
         private List<Vector3> _rectanglePositions;
+        private ISaveLoadService _saveProgressService;
+        [SerializeField] private RectTransform _selfRectTransform;
 
         [SerializeField] private RectTransform _topRectTransform;
+
+        private List<GameObject> _towerBlocks = new List<GameObject>();
+
+        private RectTransform _towerHeadRectTransform;
+
+        public void AcceptObjectWithoutChecks(DroppableObject droppableObject, Vector3 blockPosition)
+        {
+            AcceptObject(droppableObject.gameObject, blockPosition);
+            droppableObject.Accept(this);
+        }
+
+        public void UpdateProgress(PlayerProgress progress)
+        {
+            var blocksInfo = new List<BlockInfo>();
+
+            for (int i = 0; i < _towerBlocks.Count; i++)
+            {
+                Vector3Data towerBlockPosition = _rectanglePositions[i].ToVector3Data();
+
+                Color color = _towerBlocks[i].GetComponent<RectangleView>().Color;
+                blocksInfo.Add(new BlockInfo(color, towerBlockPosition));
+            }
+
+            string sceneName = SceneManager.GetActiveScene().name;
+            progress.TowerData = new TowerData(sceneName, blocksInfo);
+        }
+
+        public void LoadProgress(PlayerProgress progress)
+        {
+            MoveDropZoneToCorrectPosition(); //Fix bug with incorrect zone position after saving
+            //Add update UI after loading data or in start
+        }
 
         protected override void Awake()
         {
@@ -75,15 +104,15 @@ namespace _Scripts.GameLogic.DropZoneLogic
             else
             {
                 targetPosition = GetRandomPositionOnTop(droppableObject);
+                var startPos = droppableObject.GetComponent<DraggableObject>().PositionBeforeDrag;
+                droppableObject.transform.position = startPos;
 
                 animator.MoveToPosition(targetPosition);
             }
 
             AcceptObject(droppableObject, targetPosition);
-            MoveZoneAboveLastBlock(targetPosition); //Must be in AcceptObject, but it's bugfix 
-
+            MoveZoneAboveLastBlock(targetPosition);
             ChangeGameStatusToTowerOverflow();
-
             _saveProgressService.SaveProgress();
         }
 
@@ -101,6 +130,7 @@ namespace _Scripts.GameLogic.DropZoneLogic
         {
             _rectanglePositions = _towerBlocks.Select(t => t.transform.position).ToList();
             _rectanglePositions.Add(targetPosition);
+
             AddToTower(droppableObject);
             AdjustZoneSize();
         }
@@ -125,15 +155,19 @@ namespace _Scripts.GameLogic.DropZoneLogic
 
         private void MoveDownEveryTowerElement(int deletedIndex, float deletedHeight)
         {
+            float screenHeight = Screen.height;
+            float referenceScreenHeight = 360f;
+            float screenScale = screenHeight / referenceScreenHeight;
+
             for (int i = deletedIndex + 1; i < _towerBlocks.Count; i++)
             {
                 GameObject currentBlock = _towerBlocks[i];
                 Vector3 newPosition = currentBlock.transform.position;
-                newPosition.y -= deletedHeight;
+                newPosition.y -= deletedHeight * screenScale;
                 _rectanglePositions[i] = newPosition;
 
                 RectangleAnimator animator = currentBlock.GetComponent<RectangleAnimator>();
-                animator.MoveToPosition(newPosition);
+                animator.SimpleMoveToPosition(newPosition);
 
                 if (i == _towerBlocks.Count - 1)
                 {
@@ -169,7 +203,7 @@ namespace _Scripts.GameLogic.DropZoneLogic
                 _rectanglePositions.Clear();
 
                 _saveProgressService.SaveProgress();
-
+                PlayerPrefs.SetString("Position", "");
                 return true;
             }
 
@@ -186,71 +220,45 @@ namespace _Scripts.GameLogic.DropZoneLogic
         {
             float blockWidth = _towerHeadRectTransform.rect.width;
             float blockHeight = _towerHeadRectTransform.rect.height;
-
             _selfRectTransform.anchorMin = new Vector2(0.5f, 0.5f);
             _selfRectTransform.anchorMax = new Vector2(0.5f, 0.5f);
-
             _selfRectTransform.pivot = new Vector2(0.5f, 0.5f);
-
             _selfRectTransform.sizeDelta = new Vector2(blockWidth, blockHeight);
         }
 
         private void MoveZoneAboveLastBlock(Vector3 lastBlockPosition)
         {
             float lastBlockHeight = _towerHeadRectTransform.rect.height;
+            float screenHeight = Screen.height;
+            float referenceScreenHeight = 360f;
+            float screenScale = screenHeight / referenceScreenHeight;
 
-            Vector3 newPosition = new Vector3(lastBlockPosition.x, lastBlockPosition.y + lastBlockHeight,
+            Vector3 newPosition = new Vector3(lastBlockPosition.x, lastBlockPosition.y + lastBlockHeight * screenScale,
                 lastBlockPosition.z);
 
             _selfRectTransform.position = newPosition;
-
             PlayerPrefs.SetString("Position", _selfRectTransform.localPosition.ToString());
         }
 
         private Vector3 GetRandomPositionOnTop(GameObject newBlock)
         {
             RectTransform newBlockRect = newBlock.GetComponent<RectTransform>();
-
             Vector3 topPosition = _towerHeadRectTransform.position;
             float topWidth = _towerHeadRectTransform.rect.width;
 
             float newBlockWidth = newBlockRect.rect.width;
             float newBlockHeight = newBlockRect.rect.height;
 
+            float screenHeight = Screen.height;
+            float referenceScreenHeight = 360f;
+
+            float screenScale = screenHeight / referenceScreenHeight;
             float randomX = Random.Range(topPosition.x - newBlockWidth / 2, topPosition.x + newBlockWidth / 2);
+            float newBlockHeightOffset = newBlockHeight / 2 * screenScale;
 
-            float newBlockHeightOffset = newBlockHeight / 2;
-
-            return new Vector3(randomX, topPosition.y + _towerHeadRectTransform.rect.height / 2 + newBlockHeightOffset,
+            return new Vector3(randomX,
+                topPosition.y + _towerHeadRectTransform.rect.height / 2 * screenScale + newBlockHeightOffset,
                 topPosition.z);
-        }
-
-        public void UpdateProgress(PlayerProgress progress)
-        {
-            var blocksInfo = new List<BlockInfo>();
-
-            for (int i = 0; i < _towerBlocks.Count; i++)
-            {
-                Vector3Data towerBlockPosition = _rectanglePositions[i].ToVector3Data();
-
-                Color color = _towerBlocks[i].GetComponent<RectangleView>().Color;
-                blocksInfo.Add(new BlockInfo(color, towerBlockPosition));
-            }
-
-            string sceneName = SceneManager.GetActiveScene().name;
-            progress.TowerData = new TowerData(sceneName, blocksInfo);
-        }
-
-        public void LoadProgress(PlayerProgress progress)
-        {
-            MoveDropZoneToCorrectPosition(); //Fix bug with incorrect zone position after saving
-
-            if (CheckUIBonds.IsUIElementOnScreen(_selfRectTransform))
-            {
-                Debug.Log(_selfRectTransform.position);
-                OnGameStateChange.Value = Localization[TowerOverflow].GetCurrent();
-            }
-            //Make dropZoneCreating in GameFactory
         }
 
         private void MoveDropZoneToCorrectPosition()
@@ -276,12 +284,6 @@ namespace _Scripts.GameLogic.DropZoneLogic
 
                 return new Vector3(x, y, z);
             }
-        }
-
-        public void AcceptObjectWithoutChecks(DroppableObject droppableObject, Vector3 blockPosition)
-        {
-            AcceptObject(droppableObject.gameObject, blockPosition);
-            droppableObject.Accept(this);
         }
     }
 }

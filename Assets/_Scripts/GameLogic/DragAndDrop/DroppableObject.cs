@@ -55,6 +55,7 @@ namespace _Scripts.GameLogic.DragAndDrop
 
                 if (!_currentDropZone)
                     GetComponent<RectangleDeath>()?.DeleteRectangle();
+
             }
 
             // _currentDropZone = _dropZoneManager.CanAnyAcceptObject(this.gameObject);
